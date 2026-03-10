@@ -57,16 +57,28 @@ class ProductService {
   }
 
   async getProductById(id) {
-    return prisma.product.findUnique({
+    const product = await prisma.product.findUnique({
       where: { id },
       include: {
         category: true,
         reviews: {
           include: { user: { select: { name: true } } },
           orderBy: { createdAt: 'desc' }
+        },
+        _count: {
+          select: { reviews: true }
         }
       }
     });
+
+    if (product && product.reviews.length > 0) {
+      const sum = product.reviews.reduce((acc, review) => acc + review.rating, 0);
+      product.averageRating = parseFloat((sum / product.reviews.length).toFixed(1));
+    } else if (product) {
+      product.averageRating = 0;
+    }
+
+    return product;
   }
 }
 
