@@ -35,6 +35,20 @@ model User {
   orders    Order[]
   reviews   Review[]
   wishlists WishlistFolder[]
+  cartItems CartItem[]
+}
+
+model CartItem {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  productId String
+  product   Product  @relation(fields: [productId], references: [id])
+  quantity  Int      @default(1)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, productId])
 }
 
 model Category {
@@ -61,6 +75,7 @@ model Product {
   orderItems  OrderItem[]
   reviews     Review[]
   wishlistItems WishlistItem[]
+  cartItems   CartItem[]
 }
 
 model Order {
