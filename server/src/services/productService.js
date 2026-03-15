@@ -74,11 +74,35 @@ class ProductService {
     if (product && product.reviews.length > 0) {
       const sum = product.reviews.reduce((acc, review) => acc + review.rating, 0);
       product.averageRating = parseFloat((sum / product.reviews.length).toFixed(1));
+      
+      // Calculate rating breakdown (1-5 stars)
+      const breakdown = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+      product.reviews.forEach(r => breakdown[r.rating]++);
+      product.ratingBreakdown = breakdown;
     } else if (product) {
       product.averageRating = 0;
+      product.ratingBreakdown = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
     }
 
     return product;
+  }
+
+  async getSimilarProducts(productId, limit = 4) {
+    const product = await prisma.product.findUnique({
+      where: { id: productId },
+      select: { categoryId: true }
+    });
+
+    if (!product) throw new Error('Product not found');
+
+    return prisma.product.findMany({
+      where: {
+        categoryId: product.categoryId,
+        NOT: { id: productId }
+      },
+      take: parseInt(limit),
+      include: { category: true }
+    });
   }
 }
 

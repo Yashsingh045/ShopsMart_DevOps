@@ -24,6 +24,16 @@ class ProductController {
       res.status(400).json({ error: error.message });
     }
   }
+
+  async getSimilar(req, res) {
+    try {
+      const { limit } = req.query;
+      const products = await productService.getSimilarProducts(req.params.id, limit);
+      res.json(products);
+    } catch (error) {
+      res.status(400).json({ error: error.message });
+    }
+  }
 }
 
 module.exports = new ProductController();
