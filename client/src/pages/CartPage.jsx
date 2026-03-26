@@ -9,7 +9,7 @@ import Footer from '../components/Footer';
 const CartPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { items, loading } = useSelector(state => state.cart);
+  const { items } = useSelector(state => state.cart);
   const { user } = useSelector(state => state.auth);
 
   useEffect(() => {
@@ -59,7 +59,7 @@ const CartPage = () => {
               <ShoppingBag className="w-10 h-10 text-slate-300" />
             </div>
             <h2 className="text-2xl font-bold text-slate-800 mb-2">Cart is empty</h2>
-            <p className="text-slate-500 mb-8">Looks like you haven't added anything to your cart yet.</p>
+            <p className="text-slate-500 mb-8 max-w-sm mx-auto">Your cart hasn&apos;t seen any love yet. Explore the shop to add items.</p>
             <Link to="/shop" className="btn-primary inline-flex items-center gap-2 px-10">
               Start Shopping <ArrowRight className="w-4 h-4" />
             </Link>

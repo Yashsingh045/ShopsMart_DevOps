@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
 import api from '../utils/api';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -122,7 +122,7 @@ const WishlistPage = () => {
               <Heart className="w-10 h-10 text-slate-300" />
             </div>
             <h2 className="text-2xl font-bold text-slate-800 mb-2">Folder is empty</h2>
-            <p className="text-slate-500 mb-8 max-w-sm mx-auto">This collection hasn't seen any love yet. Explore the shop to add items.</p>
+            <p className="text-slate-500 mb-8 max-w-sm mx-auto">This collection hasn&apos;t seen any love yet. Explore the shop to add items.</p>
             <a href="/shop" className="btn-primary inline-flex items-center gap-2 px-10">
               Browse Collection
             </a>

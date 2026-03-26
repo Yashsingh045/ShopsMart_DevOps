@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import api from '../utils/api';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import { CreditCard, Truck, MapPin, CheckCircle2, Loader2, ArrowRight, ShieldCheck } from 'lucide-react';
+import { CreditCard, MapPin, CheckCircle2, Loader2, ArrowRight, ShieldCheck } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { clearCartLocal } from '../store/slices/cartSlice';
 
@@ -167,7 +167,7 @@ const CheckoutPage = () => {
               </div>
               <h2 className="text-4xl font-black text-slate-900 mb-4 tracking-tight">Order Confirmed!</h2>
               <p className="text-slate-500 mb-10 max-w-sm mx-auto">
-                Thank you for your purchase. We're processing your order and will notify you once it's on its way.
+                Thank you for your purchase. We&apos;re processing your order and will notify you once it&apos;s on its way.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <button 

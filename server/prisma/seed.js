@@ -1,9 +1,22 @@
 const { PrismaClient } = require('../src/generated/prisma');
 const { generateProducts } = require('../src/utils/product-generator');
+const crypto = require('crypto');
 const prisma = new PrismaClient();
 
 async function main() {
   console.log('Seeding started...');
+
+  // 0. Clear existing data (to avoid duplicates/broken relationships)
+  console.log('Clearing existing data...');
+  await prisma.review.deleteMany();
+  await prisma.orderItem.deleteMany();
+  await prisma.order.deleteMany();
+  await prisma.wishlistItem.deleteMany();
+  await prisma.wishlistFolder.deleteMany();
+  await prisma.cartItem.deleteMany();
+  await prisma.productImage.deleteMany();
+  await prisma.product.deleteMany();
+  await prisma.category.deleteMany();
 
   // 1. Categories
   const categoryNames = ['Clothes', 'Shoes', 'Accessories'];
@@ -42,29 +55,55 @@ async function main() {
   });
   console.log('Initial users seeded.');
 
-  // 3. Products (Large Dataset)
-  console.log('Generating 1000 products...');
+  // 3. Products
+  console.log('Generating 1000 products with images...');
   const productData = generateProducts(categoryNames);
   
-  const productsToInsert = productData.map(p => ({
-    name: p.name,
-    description: p.description,
-    price: p.price,
-    stock: p.stock,
-    categoryId: categoryIdMap[p.categoryName],
-    userId: admin.id
-  }));
+  const productsToInsert = [];
+  const imagesToInsert = [];
 
-  // Chunking for large insert
+  for (const p of productData) {
+    const productId = crypto.randomUUID();
+    productsToInsert.push({
+      id: productId,
+      name: p.name,
+      description: p.description,
+      price: p.price,
+      stock: p.stock,
+      categoryId: categoryIdMap[p.categoryName],
+      userId: admin.id
+    });
+
+    if (p.images && p.images.length > 0) {
+      p.images.forEach(url => {
+        imagesToInsert.push({
+          url: url,
+          productId: productId
+        });
+      });
+    }
+  }
+
+  // Chunking for products
+  console.log('Inserting products...');
   for (let i = 0; i < productsToInsert.length; i += 100) {
     const chunk = productsToInsert.slice(i, i + 100);
-    // Note: createMany is supported on Postgres
     await prisma.product.createMany({
       data: chunk,
       skipDuplicates: true
     });
   }
-  console.log('1000 products seeded.');
+
+  // Chunking for images
+  console.log('Inserting product images...');
+  for (let i = 0; i < imagesToInsert.length; i += 200) {
+    const chunk = imagesToInsert.slice(i, i + 200);
+    await prisma.productImage.createMany({
+      data: chunk,
+      skipDuplicates: true
+    });
+  }
+  console.log('1000 products and their images seeded.');
 
   // 4. Reviews
   console.log('Seeding reviews...');

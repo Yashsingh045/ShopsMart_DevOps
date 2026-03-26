@@ -37,7 +37,11 @@ class ProductService {
     const [products, total] = await Promise.all([
       prisma.product.findMany({
         where,
-        include: { category: true, _count: { select: { reviews: true } } },
+        include: { 
+          category: true, 
+          images: { select: { url: true } },
+          _count: { select: { reviews: true } } 
+        },
         skip,
         take: parseInt(limit),
         orderBy: { createdAt: 'desc' }
@@ -61,6 +65,7 @@ class ProductService {
       where: { id },
       include: {
         category: true,
+        images: { select: { url: true } },
         reviews: {
           include: { user: { select: { name: true } } },
           orderBy: { createdAt: 'desc' }
@@ -101,7 +106,7 @@ class ProductService {
         NOT: { id: productId }
       },
       take: parseInt(limit),
-      include: { category: true }
+      include: { category: true, images: { select: { url: true } } }
     });
   }
 }

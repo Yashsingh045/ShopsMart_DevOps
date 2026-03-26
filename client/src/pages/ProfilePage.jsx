@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import api from '../utils/api';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import { User, Mail, Shield, ShoppingBag, Heart, DollarSign, LogOut, Loader2, Edit3, Save } from 'lucide-react';
+import { Mail, Shield, ShoppingBag, Heart, DollarSign, LogOut, Loader2, Edit3, Save } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const ProfilePage = () => {

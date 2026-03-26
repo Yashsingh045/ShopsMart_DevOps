@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 import api from '../utils/api';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import { Package, Clock, Box, CheckCircle2, ChevronRight, Loader2, Search } from 'lucide-react';
+import { Package, Clock, Box, ChevronRight, Loader2, Search } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const OrdersPage = () => {
@@ -65,7 +65,7 @@ const OrdersPage = () => {
               <Box className="w-10 h-10 text-slate-300" />
             </div>
             <h2 className="text-2xl font-bold text-slate-800 mb-2">No orders yet</h2>
-            <p className="text-slate-500 mb-8 max-w-sm mx-auto">Looks like you haven't placed any orders. Start exploring our premium collection.</p>
+            <p className="text-slate-500 mb-8 max-w-sm mx-auto">Looks like you haven&apos;t placed any orders. Start exploring our premium collection.</p>
             <a href="/shop" className="btn-primary inline-flex items-center gap-2 px-10">
               Go Shopping
             </a>
