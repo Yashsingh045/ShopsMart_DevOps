@@ -1,4 +1,4 @@
-import { Facebook, Twitter, Instagram, Github, Mail } from 'lucide-react';
+import { Globe, Twitter, Instagram, Github, Mail } from 'lucide-react';
 
 const Footer = () => {
   return (
@@ -46,7 +46,7 @@ const Footer = () => {
         <div className="flex flex-col items-center md:items-end">
           <h4 className="text-white font-semibold mb-4">Join our community</h4>
           <div className="flex space-x-4">
-            <a href="#" className="p-2 bg-slate-800 rounded-full hover:bg-primary-600 transition-all active:scale-90"><Facebook className="w-4 h-4" /></a>
+            <a href="#" className="p-2 bg-slate-800 rounded-full hover:bg-primary-600 transition-all active:scale-90"><Globe className="w-4 h-4" /></a>
             <a href="#" className="p-2 bg-slate-800 rounded-full hover:bg-primary-600 transition-all active:scale-90"><Twitter className="w-4 h-4" /></a>
             <a href="#" className="p-2 bg-slate-800 rounded-full hover:bg-primary-600 transition-all active:scale-90"><Instagram className="w-4 h-4" /></a>
             <a href="#" className="p-2 bg-slate-800 rounded-full hover:bg-primary-600 transition-all active:scale-90"><Github className="w-4 h-4" /></a>

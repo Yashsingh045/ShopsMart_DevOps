@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { login, signup } from '../store/slices/authSlice';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Mail, Lock, User, ArrowRight, Loader2, ShieldCheck } from 'lucide-react';
 import { motion } from 'framer-motion';
 

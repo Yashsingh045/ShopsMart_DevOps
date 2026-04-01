@@ -32,7 +32,7 @@ const ShopPage = () => {
     }, 500);
 
     return () => clearTimeout(delayDebounceFn);
-  }, [dispatch, filtros]); 
+  }, [dispatch, filters]); 
   // Wait, I used 'filtros' instead of 'filters' in thought, must fix.
 
   const handlePageChange = (newPage) => {

@@ -1,4 +1,4 @@
-import { Search, Filter, X } from 'lucide-react';
+import { Filter, X } from 'lucide-react';
 
 const ProductFilters = ({ filters, setFilters, categories }) => {
   return (

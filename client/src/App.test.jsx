@@ -1,6 +1,9 @@
 import { render, screen } from '@testing-library/react';
 import App from './App';
 import { describe, it, expect, vi } from 'vitest';
+import { Provider } from 'react-redux';
+import { store } from './store';
+import { MemoryRouter } from 'react-router-dom';
 
 describe('App', () => {
     it('renders ShopSmart title', () => {
@@ -11,8 +14,14 @@ describe('App', () => {
             })
         );
 
-        render(<App />);
-        const linkElement = screen.getByText(/ShopSmart/i);
-        expect(linkElement).toBeInTheDocument();
+        render(
+            <Provider store={store}>
+                <MemoryRouter>
+                    <App />
+                </MemoryRouter>
+            </Provider>
+        );
+        const linkElements = screen.getAllByText(/ShopSmart/i);
+        expect(linkElements.length).toBeGreaterThan(0);
     });
 });
