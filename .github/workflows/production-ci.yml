@@ -56,6 +56,10 @@ jobs:
     needs: [frontend-checks, backend-checks]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     steps:
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20.x"
       - name: Deploy to EC2 via SSH
         uses: appleboy/ssh-action@master
         with:
@@ -69,13 +73,10 @@ jobs:
 
             mkdir -p "$TARGET_DIR"
 
-            # Backup existing .env if it exists
             if [ -f "$ENV_FILE" ]; then
               cp "$ENV_FILE" "$ENV_BACKUP"
               echo "[INFO] .env backed up with DATABASE_URL"
             fi
-
-            # Clean and clone/update repository (but preserve the backup)
             if [ ! -d "$TARGET_DIR/.git" ]; then
               echo "[INFO] First deployment - cloning repository..."
               cd "$TARGET_DIR"
@@ -88,7 +89,6 @@ jobs:
               git reset --hard origin/main
             fi
 
-            # Restore .env from backup
             if [ -f "$ENV_BACKUP" ]; then
               mkdir -p server
               cp "$ENV_BACKUP" "$ENV_FILE"
