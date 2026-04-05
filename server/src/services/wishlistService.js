@@ -8,7 +8,12 @@ class WishlistService {
       include: {
         items: {
           include: {
-            product: true
+            product: {
+              include: {
+                category: true,
+                images: true
+              }
+            }
           }
         }
       },

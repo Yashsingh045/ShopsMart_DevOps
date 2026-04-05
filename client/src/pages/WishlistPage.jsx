@@ -43,10 +43,13 @@ const WishlistPage = () => {
     }
   };
 
-  const folders = ['All', ...new Set(wishlistData.map(item => item.folder))];
-  const filteredItems = activeFolder === 'All' 
-    ? wishlistData 
-    : wishlistData.filter(item => item.folder === activeFolder);
+  const folderNames = ['All', ...wishlistData.map(folder => folder.name)];
+  
+  const filteredItems = activeFolder === 'All'
+    ? wishlistData.flatMap(folder => folder.items.map(item => ({ ...item, folderId: folder.id, folderName: folder.name })))
+    : wishlistData
+        .filter(folder => folder.name === activeFolder)
+        .flatMap(folder => folder.items.map(item => ({ ...item, folderId: folder.id, folderName: folder.name })));
 
   return (
     <div className="flex flex-col min-h-screen bg-slate-50">
@@ -96,7 +99,7 @@ const WishlistPage = () => {
 
         {/* Folders Bar */}
         <div className="flex gap-3 mb-10 overflow-x-auto pb-4 no-scrollbar">
-          {folders.map(folder => (
+          {folderNames.map(folder => (
             <button
               key={folder}
               onClick={() => setActiveFolder(folder)}
@@ -142,7 +145,7 @@ const WishlistPage = () => {
                   <div className="mt-3 flex gap-2">
                     <button 
                       onClick={async () => {
-                        await api.delete(`/wishlist/${item.productId}`);
+                        await api.delete(`/wishlist/items/${item.folderId}/${item.productId}`);
                         fetchWishlist();
                       }}
                       className="flex-grow flex items-center justify-center gap-2 py-2 text-[10px] font-bold text-slate-400 hover:text-red-500 transition-colors bg-white rounded-xl border border-slate-100"

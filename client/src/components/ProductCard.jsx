@@ -1,15 +1,35 @@
 import { Heart, ShoppingCart, Star } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { addToCart } from '../store/slices/cartSlice';
+import { addToWishlist, removeFromWishlist } from '../store/slices/wishlistSlice';
 
 const ProductCard = ({ product }) => {
   const dispatch = useDispatch();
+  const { folders } = useSelector(state => state.wishlist);
+  const { user } = useSelector(state => state.auth);
+
+  // Find the default "Favourites" folder
+  const defaultFolder = folders.find(f => f.isDefault) || folders[0];
+  const isWishlisted = defaultFolder?.items?.some(item => item.productId === product.id) || false;
 
   const handleAddToCart = (e) => {
     e.preventDefault();
+    if (!user) return alert('Please login to add items to cart');
     dispatch(addToCart({ productId: product.id, quantity: 1 }));
+  };
+
+  const handleWishlistToggle = (e) => {
+    e.preventDefault();
+    if (!user) return alert('Please login to add items to wishlist');
+    if (!defaultFolder) return;
+
+    if (isWishlisted) {
+      dispatch(removeFromWishlist({ folderId: defaultFolder.id, productId: product.id }));
+    } else {
+      dispatch(addToWishlist({ folderId: defaultFolder.id, productId: product.id }));
+    }
   };
 
   return (
@@ -32,8 +52,13 @@ const ProductCard = ({ product }) => {
             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-in-out"
           />
           <div className="absolute inset-0 bg-black/5 group-hover:bg-black/0 transition-colors duration-300"></div>
-          <button className="absolute top-4 right-4 p-2 bg-white/90 backdrop-blur-md rounded-full text-slate-400 hover:text-red-500 hover:scale-110 active:scale-90 transition-all shadow-lg z-10">
-            <Heart className="w-5 h-5" />
+          <button 
+            onClick={handleWishlistToggle}
+            className={`absolute top-4 right-4 p-2 backdrop-blur-md rounded-full hover:scale-110 active:scale-90 transition-all shadow-lg z-10 ${
+              isWishlisted ? 'bg-primary-600 text-white' : 'bg-white/90 text-slate-400 hover:text-red-500'
+            }`}
+          >
+            <Heart className={`w-5 h-5 ${isWishlisted ? 'fill-current' : ''}`} />
           </button>
         </div>
         

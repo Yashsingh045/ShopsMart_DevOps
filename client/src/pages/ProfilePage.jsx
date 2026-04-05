@@ -60,7 +60,7 @@ const ProfilePage = () => {
           <div className="lg:col-span-1 space-y-6">
             <div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-100 flex flex-col items-center">
               <div className="w-24 h-24 bg-primary-100 text-primary-600 rounded-full flex items-center justify-center text-3xl font-black mb-6 shadow-inner uppercase">
-                {user.name.charAt(0)}
+                {user?.name?.charAt(0) || user?.email?.charAt(0) || 'U'}
               </div>
               
               {!editing ? (

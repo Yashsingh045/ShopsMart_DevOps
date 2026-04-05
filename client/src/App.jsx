@@ -2,6 +2,8 @@ import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { setUser } from './store/slices/authSlice';
+import { fetchCart } from './store/slices/cartSlice';
+import { fetchWishlist } from './store/slices/wishlistSlice';
 import api from './utils/api';
 import { AnimatePresence, motion } from 'framer-motion';
 
@@ -34,6 +36,8 @@ function App() {
         try {
           const response = await api.get('/auth/me');
           dispatch(setUser(response.data));
+          dispatch(fetchCart());
+          dispatch(fetchWishlist());
         } catch (error) {
           console.error('Failed to restore session');
           localStorage.removeItem('shopsmart_token');

@@ -20,10 +20,9 @@ const ShopPage = () => {
   });
 
   const categories = [
-    { id: 1, name: 'Electronics' },
-    { id: 2, name: 'Clothing' },
-    { id: 3, name: 'Home' },
-    { id: 4, name: 'Beauty' }
+    { id: 1, name: 'Clothes' },
+    { id: 2, name: 'Shoes' },
+    { id: 3, name: 'Accessories' }
   ];
 
   useEffect(() => {
@@ -39,14 +38,43 @@ const ShopPage = () => {
     setFilters({ ...filters, page: newPage });
   };
 
+  const renderPagination = () => {
+    const { totalPages } = pagination;
+    const { page: currentPage } = filters;
+    const delta = 2;
+    const range = [];
+    const rangeWithDots = [];
+    let l;
+
+    for (let i = 1; i <= totalPages; i++) {
+      if (i === 1 || i === totalPages || (i >= currentPage - delta && i <= currentPage + delta)) {
+        range.push(i);
+      }
+    }
+
+    range.forEach(i => {
+      if (l) {
+        if (i - l === 2) {
+          rangeWithDots.push(l + 1);
+        } else if (i - l !== 1) {
+          rangeWithDots.push('...');
+        }
+      }
+      rangeWithDots.push(i);
+      l = i;
+    });
+
+    return rangeWithDots;
+  };
+
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen overflow-x-hidden">
       <Navbar />
       
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 w-full">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 w-full flex-grow">
         <div className="flex flex-col md:flex-row gap-8">
           {/* Mobile Filter Toggle */}
-          <button className="md:hidden flex items-center gap-2 mb-4 text-slate-600 font-semibold border p-3 rounded-xl justify-center">
+          <button className="md:hidden flex items-center gap-2 mb-4 text-slate-600 font-semibold border p-3 rounded-xl justify-center w-full">
             <SlidersHorizontal className="w-5 h-5" />
             Filters
           </button>
@@ -61,7 +89,7 @@ const ShopPage = () => {
           </aside>
 
           {/* Product Center */}
-          <div className="flex-grow">
+          <div className="flex-grow min-w-0">
             <div className="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4">
               <h1 className="text-3xl font-bold text-slate-900 self-start">
                 {filters.category ? `${filters.category} Collection` : 'All Products'}
@@ -74,7 +102,7 @@ const ShopPage = () => {
                 <input 
                   type="text" 
                   placeholder="Search products..." 
-                  className="input-field pl-10 h-11 pr-4 text-sm"
+                  className="input-field pl-10 h-11 pr-4 text-sm w-full sm:w-64"
                   value={filters.search}
                   onChange={(e) => setFilters({ ...filters, search: e.target.value, page: 1 })}
                 />
@@ -104,19 +132,23 @@ const ShopPage = () => {
 
                 {/* Pagination */}
                 {pagination.totalPages > 1 && (
-                  <div className="flex justify-center mt-16 space-x-2">
-                    {[...Array(pagination.totalPages)].map((_, i) => (
-                      <button
-                        key={i + 1}
-                        onClick={() => handlePageChange(i + 1)}
-                        className={`w-10 h-10 rounded-xl font-bold transition-all ${
-                          filters.page === i + 1 
-                            ? 'bg-primary-600 text-white shadow-lg shadow-primary-200 scale-110' 
-                            : 'bg-white text-slate-600 hover:bg-primary-50 border border-slate-100'
-                        }`}
-                      >
-                        {i + 1}
-                      </button>
+                  <div className="flex justify-center items-center mt-16 space-x-2">
+                    {renderPagination().map((p, i) => (
+                      p === '...' ? (
+                        <span key={`dots-${i}`} className="px-2 text-slate-400">...</span>
+                      ) : (
+                        <button
+                          key={p}
+                          onClick={() => handlePageChange(p)}
+                          className={`w-10 h-10 rounded-xl font-bold transition-all ${
+                            filters.page === p 
+                              ? 'bg-primary-600 text-white shadow-lg shadow-primary-200 scale-110' 
+                              : 'bg-white text-slate-600 hover:bg-primary-50 border border-slate-100'
+                          }`}
+                        >
+                          {p}
+                        </button>
+                      )
                     ))}
                   </div>
                 )}

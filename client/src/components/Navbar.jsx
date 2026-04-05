@@ -34,7 +34,7 @@ const Navbar = () => {
 
           {/* Icons */}
           <div className="flex items-center space-x-5">
-            <Link to="/profile" className="text-slate-600 hover:text-primary-600 transition-colors">
+            <Link to="/wishlist" className="text-slate-600 hover:text-primary-600 transition-colors">
               <Heart className="w-5 h-5" />
             </Link>
             <Link to="/cart" className="relative text-slate-600 hover:text-primary-600 transition-colors">
