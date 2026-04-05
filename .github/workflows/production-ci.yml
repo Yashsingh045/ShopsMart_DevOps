@@ -77,16 +77,23 @@ jobs:
               cp "$ENV_FILE" "$ENV_BACKUP"
               echo "[INFO] .env backed up with DATABASE_URL"
             fi
+
             if [ ! -d "$TARGET_DIR/.git" ]; then
               echo "[INFO] First deployment - cloning repository..."
               cd "$TARGET_DIR"
-              find . -maxdepth 1 ! -name '.' -exec rm -rf {} +  # Remove contents but keep directory
+              find . -maxdepth 1 ! -name '.' -exec rm -rf {} +
               git clone https://github.com/Yashsingh045/ShopsMart_DevOps.git .
             else
               echo "[INFO] Updating existing repository..."
               cd "$TARGET_DIR"
               git fetch origin main
               git reset --hard origin/main
+            fi
+
+            if ! command -v node &> /dev/null; then
+              echo "[INFO] Installing Node.js..."
+              curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+              sudo apt-get install -y nodejs
             fi
 
             if [ -f "$ENV_BACKUP" ]; then
