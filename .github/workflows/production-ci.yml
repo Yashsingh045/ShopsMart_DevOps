@@ -69,26 +69,26 @@ jobs:
 
             mkdir -p "$TARGET_DIR"
 
-
+            # Backup existing .env if it exists
             if [ -f "$ENV_FILE" ]; then
               cp "$ENV_FILE" "$ENV_BACKUP"
               echo "[INFO] .env backed up with DATABASE_URL"
             fi
 
-            cd "$TARGET_DIR"
-
-
-            if [ ! -d ".git" ]; then
+            # Clean and clone/update repository (but preserve the backup)
+            if [ ! -d "$TARGET_DIR/.git" ]; then
               echo "[INFO] First deployment - cloning repository..."
-              rm -rf .
+              cd "$TARGET_DIR"
+              find . -maxdepth 1 ! -name '.' -exec rm -rf {} +  # Remove contents but keep directory
               git clone https://github.com/Yashsingh045/ShopsMart_DevOps.git .
             else
               echo "[INFO] Updating existing repository..."
+              cd "$TARGET_DIR"
               git fetch origin main
               git reset --hard origin/main
             fi
 
-
+            # Restore .env from backup
             if [ -f "$ENV_BACKUP" ]; then
               mkdir -p server
               cp "$ENV_BACKUP" "$ENV_FILE"
