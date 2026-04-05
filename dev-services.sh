@@ -11,21 +11,22 @@ handle_start() {
     npm run dev &
     BACKEND_PID=$!
     echo $BACKEND_PID > ../backend.pid
+    disown $BACKEND_PID
     
     echo "[INFO] Checking backend health..."
     cd ..
     
     check_health() {
-      for i in {1..5}; do
+      for i in {1..15}; do
         
         if curl -f -s http://localhost:5001/api/health > /dev/null; then
           echo "[OK] Backend is Up!"
           return 0
         fi
-        echo "[INFO] Waiting for backend to start... (Attempt $i/5)"
+        echo "[INFO] Waiting for backend to start... (Attempt $i/15)"
         sleep 2
       done
-      echo "[FAIL] Backend died"
+      echo "[FAIL] Backend did not start in time"
       exit 1
     }
     

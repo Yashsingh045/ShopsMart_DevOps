@@ -3,9 +3,14 @@
 # this setup script initialises the developer environment
 # and validates node and npm are installed, then checks for node_modules
 
+# Source nvm so this script works in non-interactive SSH sessions
+export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+
 if ! command -v node &> /dev/null; then
-  echo "[ERROR] node is not installed. Please install Node.js."
-  exit 1
+  echo "[INFO] node not found; installing via NodeSource..."
+  curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+  sudo apt-get install -y nodejs
 fi
 
 if ! command -v npm &> /dev/null; then
