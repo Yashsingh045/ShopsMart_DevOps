@@ -1,4 +1,6 @@
 const prisma = require('../db');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const JWT_SECRET = process.env.JWT_SECRET || 'super-secret-key';
 
 class AuthService {
