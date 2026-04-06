@@ -22,6 +22,9 @@ fi
 echo "[INFO] node: $(node --version), npm: $(npm --version)"
 echo "[INFO] Dependencies pre-flight check passed."
 
+# Use a persistent npm cache directory on the EC2 instance so package downloads
+# are reused across deploys, even when package-lock.json changes.
+export npm_config_cache="${HOME}/.npm-deploy-cache"
 
 DIRECTORIES=("backend" "frontend")
 
@@ -68,9 +71,16 @@ install_dir() {
 
   # Generate Prisma client after install (required before the server can start)
   if [ -f "$DIR/prisma/schema.prisma" ]; then
-    echo "[INFO] Generating Prisma client for $DIR..."
-    (cd "$DIR" && timeout 300 npx prisma generate)
-    echo "[INFO] Prisma client generated for $DIR."
+    local SCHEMA_HASH_FILE="$DIR/.prisma-schema-hash"
+    local CURRENT_SCHEMA_HASH
+    CURRENT_SCHEMA_HASH=$(sha256sum "$DIR/prisma/schema.prisma" | awk '{print $1}')
+    if [ -f "$SCHEMA_HASH_FILE" ] && [ "$(cat "$SCHEMA_HASH_FILE")" = "$CURRENT_SCHEMA_HASH" ] && [ -d "$DIR/src/generated/prisma" ]; then
+      echo "[INFO] Skipping prisma generate in $DIR: schema.prisma unchanged."
+    else
+      echo "[INFO] Generating Prisma client for $DIR..."
+      (cd "$DIR" && timeout 300 npx prisma generate && echo "$CURRENT_SCHEMA_HASH" > .prisma-schema-hash)
+      echo "[INFO] Prisma client generated for $DIR."
+    fi
   fi
 }
 
