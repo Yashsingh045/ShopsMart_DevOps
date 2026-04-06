@@ -69,7 +69,7 @@ install_dir() {
   # Generate Prisma client after install (required before the server can start)
   if [ -f "$DIR/prisma/schema.prisma" ]; then
     echo "[INFO] Generating Prisma client for $DIR..."
-    (cd "$DIR" && npx prisma generate)
+    (cd "$DIR" && timeout 300 npx prisma generate)
     echo "[INFO] Prisma client generated for $DIR."
   fi
 }
