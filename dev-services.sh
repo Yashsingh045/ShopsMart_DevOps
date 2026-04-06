@@ -21,7 +21,7 @@ handle_start() {
   if [ -d "server" ]; then
     echo "[INFO] Starting backend..."
     cd server || { echo "[ERROR] Cannot enter server dir"; exit 1; }
-    nohup npm run dev > ../backend.log 2>&1 &
+    nohup npm start > ../backend.log 2>&1 &
     BACKEND_PID=$!
     echo $BACKEND_PID > ../backend.pid
     disown $BACKEND_PID
