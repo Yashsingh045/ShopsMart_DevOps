@@ -56,10 +56,6 @@ jobs:
     needs: [frontend-checks, backend-checks]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     steps:
-      - name: Install Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20.x"
       - name: Deploy to EC2 via SSH
         uses: appleboy/ssh-action@master
         with:
@@ -67,6 +63,17 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
+            set -euo pipefail
+            # ── Ensure Node.js is on PATH (non-interactive SSH does not source ~/.bashrc) ──
+            export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            if ! command -v node &>/dev/null; then
+              echo "[INFO] Node.js not found; installing via NodeSource..."
+              curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+              sudo apt-get install -y nodejs
+            fi
+            echo "[INFO] node: $(node --version), npm: $(npm --version)"
+
             TARGET_DIR=${{ secrets.EC2_TARGET_DIR }}
             ENV_FILE="$TARGET_DIR/server/.env"
             ENV_BACKUP="/tmp/.shopsMart-env.backup"
