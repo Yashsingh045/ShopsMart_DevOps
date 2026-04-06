@@ -32,23 +32,58 @@ if [ -d "client" ]; then
     DIRECTORIES[1]="client"
 fi
 
+# Install dependencies in a single directory.
+# Uses package-lock.json hash caching to skip installs when deps haven't changed.
+# Runs npm ci --prefer-offline for speed and reproducibility.
+install_dir() {
+  local DIR="$1"
+  local LOCK_FILE="$DIR/package-lock.json"
+  local HASH_FILE="$DIR/.install-hash"
 
-for DIR in "${DIRECTORIES[@]}"; do
-  if [ -d "$DIR" ]; then
-    echo "[INFO] Entering directory: $DIR"
-    cd "$DIR" || exit 1
-    
-    if [ -d "node_modules" ]; then
-      echo "[INFO] Skipping install in $DIR: node_modules already exists."
-    else
-      echo "[INFO] Installing dependencies in $DIR..."
-      npm install
-    fi
-    
-    cd ..
-  else
+  if [ ! -d "$DIR" ]; then
     echo "[WARNING] Directory $DIR does not exist."
+    return 0
+  fi
+
+  echo "[INFO] Checking dependencies in $DIR..."
+
+  if [ ! -f "$LOCK_FILE" ]; then
+    echo "[WARNING] No package-lock.json found in $DIR; running npm install --prefer-offline..."
+    (cd "$DIR" && npm install --prefer-offline)
+    return 0
+  fi
+
+  local CURRENT_HASH
+  CURRENT_HASH=$(sha256sum "$LOCK_FILE" | awk '{print $1}')
+
+  if [ -f "$HASH_FILE" ] && [ "$(cat "$HASH_FILE")" = "$CURRENT_HASH" ]; then
+    echo "[INFO] Skipping install in $DIR: package-lock.json unchanged."
+    return 0
+  fi
+
+  echo "[INFO] Installing dependencies in $DIR..."
+  (cd "$DIR" && npm ci --prefer-offline && echo "$CURRENT_HASH" > .install-hash)
+  echo "[INFO] Install complete in $DIR."
+}
+
+# Run installs for all directories in parallel
+PIDS=()
+for DIR in "${DIRECTORIES[@]}"; do
+  install_dir "$DIR" &
+  PIDS+=($!)
+done
+
+# Wait for all background installs and collect exit codes
+EXIT_CODE=0
+for PID in "${PIDS[@]}"; do
+  if ! wait "$PID"; then
+    EXIT_CODE=1
   fi
 done
+
+if [ "$EXIT_CODE" -ne 0 ]; then
+  echo "[ERROR] One or more installs failed."
+  exit 1
+fi
 
 echo "[INFO] Setup complete."
