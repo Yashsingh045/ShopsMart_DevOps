@@ -62,7 +62,7 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          command_timeout: 10m
+          command_timeout: 15m
           script: |
             set -euo pipefail
             # ── Ensure Node.js is on PATH (non-interactive SSH does not source ~/.bashrc) ──
