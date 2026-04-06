@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -euo pipefail
 
 # this setup script initialises the developer environment
 # and validates node and npm are installed, then checks for node_modules
@@ -18,6 +19,7 @@ if ! command -v npm &> /dev/null; then
   exit 1
 fi
 
+echo "[INFO] node: $(node --version), npm: $(npm --version)"
 echo "[INFO] Dependencies pre-flight check passed."
 
 
@@ -34,7 +36,7 @@ fi
 
 # Install dependencies in a single directory.
 # Uses package-lock.json hash caching to skip installs when deps haven't changed.
-# Runs npm ci --prefer-offline for speed and reproducibility.
+# Wraps npm with a 5-minute timeout to prevent indefinite hangs on the EC2.
 install_dir() {
   local DIR="$1"
   local LOCK_FILE="$DIR/package-lock.json"
@@ -48,8 +50,8 @@ install_dir() {
   echo "[INFO] Checking dependencies in $DIR..."
 
   if [ ! -f "$LOCK_FILE" ]; then
-    echo "[WARNING] No package-lock.json found in $DIR; running npm install --prefer-offline..."
-    (cd "$DIR" && npm install --prefer-offline)
+    echo "[WARNING] No package-lock.json found in $DIR; running npm install..."
+    (cd "$DIR" && timeout 300 npm install)
     return 0
   fi
 
@@ -58,12 +60,18 @@ install_dir() {
 
   if [ -f "$HASH_FILE" ] && [ "$(cat "$HASH_FILE")" = "$CURRENT_HASH" ]; then
     echo "[INFO] Skipping install in $DIR: package-lock.json unchanged."
-    return 0
+  else
+    echo "[INFO] Installing dependencies in $DIR..."
+    (cd "$DIR" && timeout 300 npm ci && echo "$CURRENT_HASH" > .install-hash)
+    echo "[INFO] Install complete in $DIR."
   fi
 
-  echo "[INFO] Installing dependencies in $DIR..."
-  (cd "$DIR" && npm ci --prefer-offline && echo "$CURRENT_HASH" > .install-hash)
-  echo "[INFO] Install complete in $DIR."
+  # Generate Prisma client after install (required before the server can start)
+  if [ -f "$DIR/prisma/schema.prisma" ]; then
+    echo "[INFO] Generating Prisma client for $DIR..."
+    (cd "$DIR" && npx prisma generate)
+    echo "[INFO] Prisma client generated for $DIR."
+  fi
 }
 
 # Run installs for all directories in parallel
