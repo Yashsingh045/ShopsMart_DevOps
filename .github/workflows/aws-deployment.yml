@@ -11,7 +11,7 @@ env:
   ECR_REPOSITORY_CLIENT: shopsmart-client
   ECS_SERVICE_SERVER: shopsmart-server-service
   ECS_SERVICE_CLIENT: shopsmart-client-service
-  ECS_CLUSTER: shopsmart-cluster
+  ECS_CLUSTER: shopsmart-cluster2
   ECS_TASK_DEFINITION_SERVER: .aws/task-definition-server.json
   ECS_TASK_DEFINITION_CLIENT: .aws/task-definition-client.json
   CONTAINER_NAME_SERVER: server
