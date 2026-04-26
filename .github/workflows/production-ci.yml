@@ -51,78 +51,78 @@ jobs:
       - name: Run Tests
         run: cd server && npm run test
 
-  deploy:
-    runs-on: ubuntu-latest
-    needs: [frontend-checks, backend-checks]
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    steps:
-      - name: Deploy to EC2 via SSH
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          command_timeout: 15m
-          script: |
-            # ── Source NVM so Node is available in non-interactive SSH ──
-            export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
-            [ -s "$NVM_DIR/nvm.sh" ] && source "$NVM_DIR/nvm.sh"
+  # deploy:
+  #   runs-on: ubuntu-latest
+  #   needs: [frontend-checks, backend-checks]
+  #   if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+  #   steps:
+  #     - name: Deploy to EC2 via SSH
+  #       uses: appleboy/ssh-action@master
+  #       with:
+  #         host: ${{ secrets.EC2_HOST }}
+  #         username: ${{ secrets.EC2_USER }}
+  #         key: ${{ secrets.EC2_SSH_KEY }}
+  #         command_timeout: 15m
+  #         script: |
+  #           # ── Source NVM so Node is available in non-interactive SSH ──
+  #           export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
+  #           [ -s "$NVM_DIR/nvm.sh" ] && source "$NVM_DIR/nvm.sh"
 
-            # ── Verify Node.js ──
-            if ! command -v node &>/dev/null; then
-              echo "[INFO] Node.js not found; installing via NodeSource..."
-              curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
-              sudo apt-get install -y nodejs
-            fi
-            echo "[INFO] node=$(node --version) npm=$(npm --version)"
+  #           # ── Verify Node.js ──
+  #           if ! command -v node &>/dev/null; then
+  #             echo "[INFO] Node.js not found; installing via NodeSource..."
+  #             curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+  #             sudo apt-get install -y nodejs
+  #           fi
+  #           echo "[INFO] node=$(node --version) npm=$(npm --version)"
 
-            TARGET_DIR="/home/ubuntu/shopsMart-devOps"
-            ENV_FILE="$TARGET_DIR/server/.env"
-            ENV_BACKUP="/tmp/.shopsMart-env.backup"
+  #           TARGET_DIR="/home/ubuntu/shopsMart-devOps"
+  #           ENV_FILE="$TARGET_DIR/server/.env"
+  #           ENV_BACKUP="/tmp/.shopsMart-env.backup"
 
-            # ── Backup .env ONLY if it already exists ──
-            if [ -f "$ENV_FILE" ]; then
-              cp "$ENV_FILE" "$ENV_BACKUP"
-              echo "[INFO] .env backed up"
-            else
-              echo "[WARNING] No .env found - first deploy"
-            fi
+  #           # ── Backup .env ONLY if it already exists ──
+  #           if [ -f "$ENV_FILE" ]; then
+  #             cp "$ENV_FILE" "$ENV_BACKUP"
+  #             echo "[INFO] .env backed up"
+  #           else
+  #             echo "[WARNING] No .env found - first deploy"
+  #           fi
 
-            # ── Clone or update repo ──
-            mkdir -p "$TARGET_DIR"
-            cd "$TARGET_DIR"
-            if [ ! -d ".git" ]; then
-              echo "[INFO] First deployment - cloning repository..."
-              git clone https://github.com/Yashsingh045/ShopsMart_DevOps.git . || { echo "[ERROR] git clone failed"; exit 1; }
-            else
-              echo "[INFO] Updating existing repository..."
-              git fetch origin main || { echo "[ERROR] git fetch failed"; exit 1; }
-              git reset --hard origin/main
-            fi
+  #           # ── Clone or update repo ──
+  #           mkdir -p "$TARGET_DIR"
+  #           cd "$TARGET_DIR"
+  #           if [ ! -d ".git" ]; then
+  #             echo "[INFO] First deployment - cloning repository..."
+  #             git clone https://github.com/Yashsingh045/ShopsMart_DevOps.git . || { echo "[ERROR] git clone failed"; exit 1; }
+  #           else
+  #             echo "[INFO] Updating existing repository..."
+  #             git fetch origin main || { echo "[ERROR] git fetch failed"; exit 1; }
+  #             git reset --hard origin/main
+  #           fi
 
-            # ── Restore .env important ──
-            if [ -f "$ENV_BACKUP" ]; then
-              cp "$ENV_BACKUP" "$ENV_FILE"
-              echo "[INFO] .env restored"
-            else
-              echo "[WARNING] No .env backup found. Ensure $ENV_FILE exists on the server."
-            fi
+  #           # ── Restore .env important ──
+  #           if [ -f "$ENV_BACKUP" ]; then
+  #             cp "$ENV_BACKUP" "$ENV_FILE"
+  #             echo "[INFO] .env restored"
+  #           else
+  #             echo "[WARNING] No .env backup found. Ensure $ENV_FILE exists on the server."
+  #           fi
 
-            # ── Install server dependencies ──
-            echo "[INFO] Installing server dependencies..."
-            cd "$TARGET_DIR/server"
-            npm install --prefer-offline 2>&1 | tail -5
-            echo "[INFO] Generating Prisma client..."
-            npx prisma generate 2>&1 | tail -5
+  #           # ── Install server dependencies ──
+  #           echo "[INFO] Installing server dependencies..."
+  #           cd "$TARGET_DIR/server"
+  #           npm install --prefer-offline 2>&1 | tail -5
+  #           echo "[INFO] Generating Prisma client..."
+  #           npx prisma generate 2>&1 | tail -5
 
-            # ── Install client dependencies ──
-            echo "[INFO] Installing client dependencies..."
-            cd "$TARGET_DIR/client"
-            npm install --prefer-offline 2>&1 | tail -5
+  #           # ── Install client dependencies ──
+  #           echo "[INFO] Installing client dependencies..."
+  #           cd "$TARGET_DIR/client"
+  #           npm install --prefer-offline 2>&1 | tail -5
 
-            # ── Restart services ──
-            cd "$TARGET_DIR"
-            chmod +x dev-services.sh
-            bash dev-services.sh stop || true
-            bash dev-services.sh start
-            echo "[SUCCESS] Deployment complete!"
+  #           # ── Restart services ──
+  #           cd "$TARGET_DIR"
+  #           chmod +x dev-services.sh
+  #           bash dev-services.sh stop || true
+  #           bash dev-services.sh start
+  #           echo "[SUCCESS] Deployment complete!"
