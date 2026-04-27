@@ -73,6 +73,8 @@ jobs:
           task-definition: ${{ env.ECS_TASK_DEFINITION_SERVER }}
           container-name: ${{ env.CONTAINER_NAME_SERVER }}
           image: ${{ steps.build-image-server.outputs.image }}
+          environment-variables: |
+            DATABASE_URL=${{ secrets.DATABASE_URL }}
 
       - name: Fill in the new image ID in the Amazon ECS task definition for client
         id: task-def-client
