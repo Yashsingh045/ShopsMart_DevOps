@@ -7,15 +7,16 @@ COPY package*.json ./
 RUN npm ci
 
 COPY . .
+
+ARG VITE_API_URL
+ENV VITE_API_URL=$VITE_API_URL
+
 RUN npm run build
 
 # Production stage
 FROM nginx:stable-alpine as production-stage
 
 COPY --from=build-stage /app/dist /usr/share/nginx/html
-
-# Copy custom nginx config if you have one, otherwise use default
-# COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
 
